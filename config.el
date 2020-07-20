@@ -58,3 +58,6 @@
 
 ;; Configuring Multiple Cursors:
 (map! "C-+" #'mc/mark-all-like-this)
+(map! :map helm-map "TAB" #'helm-execute-persistent-action)
+(map! :map helm-map "<tab>" #'helm-execute-persistent-action)
+(map! :map helm-map "C-z" #'helm-select-action)
