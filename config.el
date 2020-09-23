@@ -61,3 +61,49 @@
 (map! :map helm-map "TAB" #'helm-execute-persistent-action)
 (map! :map helm-map "<tab>" #'helm-execute-persistent-action)
 (map! :map helm-map "C-z" #'helm-select-action)
+
+;; Orgmode configuration
+;;;; Adding some easier key bindings
+(map! :leader
+      :desc "Org Capture"
+      "g" #'org-capture)
+
+;;;; Setting up agenda files
+(after! org (setq org-agenda-files '("~/org/gtd/inbox.org"
+                         "~/org/gtd/gtd.org")))
+
+;;;; Adding org journal helper function
+(defun org-journal-find-location ()
+  ;; Open today's journal, but specify a non-nil prefix argument in order to
+  ;; inhibit inserting the heading; org-capture will insert the heading.
+  (org-journal-new-entry t)
+  (org-narrow-to-subtree)
+  (goto-char (point-max)))
+
+;;;; Configuring org capture
+(after! org (setq org-capture-templates '(
+                                          ("t" "General todo [inbox]" entry
+                                           (file+headline "~/org/gtd/inbox.org" "Tasks")
+                                           "* TODO %i%?")
+                                          ("j" "Journal entry" plain (function org-journal-find-location)
+                                           "** %(format-time-string org-journal-time-format)%^{Title}\n%i%?")
+                                          )))
+
+;;;; Configure refile targets
+(after! org (setq org-refile-targets '(("~/org/gtd/gtd.org" :maxlevel . 3)
+                           ("~/org/gtd/someday.org" :level . 1))))
+
+;;;; Configuring TODO keywords
+(after! org (setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)"))))
+
+;;;; Log timestamp when a task is completed
+(after! org (setq org-log-done 'time))
+
+;;;; Create custom agenda command for sprint review
+(after! org (setq org-agenda-custom-commands
+             '(("s" "Sprint Review"
+                agenda ""
+               ((org-agenda-start-day "-14d")
+                (org-agenda-span 15)
+                (org-agenda-archives-mode t)
+                (org-agenda-start-with-log-mode '(closed)))))))
